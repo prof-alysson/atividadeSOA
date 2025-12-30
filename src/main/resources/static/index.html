@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List - UNITINS TOGraduado</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Cabeçalho -->
+        <header class="header">
+            <h1>📝 Todo List</h1>
+            <p class="subtitle">Projeto Didático - Computação Orientada a Serviços</p>
+            <p class="subtitle-small">Prof. Alysson - UNITINS TOGraduado</p>
+        </header>
+
+        <!-- Formulário de criação -->
+        <div class="card">
+            <h2>Adicionar Nova Tarefa</h2>
+            <form id="todoForm">
+                <div class="form-group">
+                    <label for="titulo">Título *</label>
+                    <input
+                        type="text"
+                        id="titulo"
+                        name="titulo"
+                        placeholder="Digite o título da tarefa"
+                        required
+                        minlength="3"
+                        maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label for="descricao">Descrição</label>
+                    <textarea
+                        id="descricao"
+                        name="descricao"
+                        placeholder="Digite uma descrição (opcional)"
+                        rows="3"
+                        maxlength="500"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Adicionar Tarefa</button>
+            </form>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters">
+            <button class="btn btn-filter active" data-filter="all">Todas</button>
+            <button class="btn btn-filter" data-filter="pending">Pendentes</button>
+            <button class="btn btn-filter" data-filter="completed">Concluídas</button>
+        </div>
+
+        <!-- Lista de tarefas -->
+        <div class="card">
+            <h2>Minhas Tarefas</h2>
+            <div id="todoList" class="todo-list">
+                <p class="loading">Carregando tarefas...</p>
+            </div>
+        </div>
+
+        <!-- Status da API -->
+        <div class="api-status" id="apiStatus">
+            <span class="status-indicator"></span>
+            <span class="status-text">Verificando conexão com API...</span>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
