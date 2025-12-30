@@ -40,41 +40,41 @@ class TarefaServiceTest {
     private TarefaService tarefaService;
 
     private Tarefa tarefaMock;
-    private TarefaDTO todoDtoMock;
+    private TarefaDTO tarefaDtoMock;
 
     @BeforeEach
     void setUp() {
-        todoMock = new Todo();
-        todoMock.setId(1L);
-        todoMock.setTitulo("Teste");
-        todoMock.setDescricao("Descrição de teste");
-        todoMock.setConcluida(false);
+        tarefaMock = new Tarefa();
+        tarefaMock.setId(1L);
+        tarefaMock.setTitulo("Teste");
+        tarefaMock.setDescricao("Descrição de teste");
+        tarefaMock.setConcluida(false);
 
-        todoDtoMock = new TarefaDTO();
-        todoDtoMock.setTitulo("Teste");
-        todoDtoMock.setDescricao("Descrição de teste");
-        todoDtoMock.setConcluida(false);
+        tarefaDtoMock = new TarefaDTO();
+        tarefaDtoMock.setTitulo("Teste");
+        tarefaDtoMock.setDescricao("Descrição de teste");
+        tarefaDtoMock.setConcluida(false);
     }
 
     @Test
-    void deveCriarTodoComSucesso() {
+    void deveCriarTarefaComSucesso() {
         // Given
-        when(tarefaRepository.save(any(Todo.class))).thenReturn(todoMock);
+        when(tarefaRepository.save(any(Tarefa.class))).thenReturn(tarefaMock);
 
         // When
-        Todo resultado = tarefaService.criar(todoDtoMock);
+        Tarefa resultado = tarefaService.criar(tarefaDtoMock);
 
         // Then
         assertNotNull(resultado);
         assertEquals("Teste", resultado.getTitulo());
-        verify(tarefaRepository, times(1)).save(any(Todo.class));
+        verify(tarefaRepository, times(1)).save(any(Tarefa.class));
     }
 
     @Test
     void deveListarTodasAsTarefas() {
         // Given
-        List<Tarefa> todosMock = Arrays.asList(todoMock);
-        when(tarefaRepository.findAllByOrderByCriadoEmDesc()).thenReturn(todosMock);
+        List<Tarefa> tarefasMock = Arrays.asList(tarefaMock);
+        when(tarefaRepository.findAllByOrderByCriadoEmDesc()).thenReturn(tarefasMock);
 
         // When
         List<Tarefa> resultado = tarefaService.listarTodas();
@@ -86,51 +86,51 @@ class TarefaServiceTest {
     }
 
     @Test
-    void deveBuscarTodoPorId() {
+    void deveBuscarTarefaPorId() {
         // Given
-        when(tarefaRepository.buscarPorId(1L)).thenReturn(Optional.of(todoMock));
+        when(tarefaRepository.findById(1L)).thenReturn(Optional.of(tarefaMock));
 
         // When
-        Todo resultado = tarefaService.buscarPorId(1L);
+        Tarefa resultado = tarefaService.buscarPorId(1L);
 
         // Then
         assertNotNull(resultado);
         assertEquals(1L, resultado.getId());
-        verify(tarefaRepository, times(1)).buscarPorId(1L);
+        verify(tarefaRepository, times(1)).findById(1L);
     }
 
     @Test
-    void deveLancarExcecaoQuandoTodoNaoEncontrado() {
+    void deveLancarExcecaoQuandoTarefaNaoEncontrada() {
         // Given
-        when(tarefaRepository.buscarPorId(999L)).thenReturn(Optional.empty());
+        when(tarefaRepository.findById(999L)).thenReturn(Optional.empty());
 
         // When & Then
         assertThrows(ResourceNotFoundException.class, () -> {
             tarefaService.buscarPorId(999L);
         });
-        verify(tarefaRepository, times(1)).buscarPorId(999L);
+        verify(tarefaRepository, times(1)).findById(999L);
     }
 
     @Test
     void deveAlternarStatusDeConclusao() {
         // Given
-        when(tarefaRepository.buscarPorId(1L)).thenReturn(Optional.of(todoMock));
-        when(tarefaRepository.save(any(Todo.class))).thenReturn(todoMock);
+        when(tarefaRepository.findById(1L)).thenReturn(Optional.of(tarefaMock));
+        when(tarefaRepository.save(any(Tarefa.class))).thenReturn(tarefaMock);
 
         // When
-        Todo resultado = tarefaService.toggleConcluida(1L);
+        Tarefa resultado = tarefaService.toggleConcluida(1L);
 
         // Then
         assertNotNull(resultado);
         assertTrue(resultado.getConcluida()); // Status foi alternado
-        verify(tarefaRepository, times(1)).save(any(Todo.class));
+        verify(tarefaRepository, times(1)).save(any(Tarefa.class));
     }
 
     @Test
-    void deveAtualizarTodoComSucesso() {
+    void deveAtualizarTarefaComSucesso() {
         // Given
-        when(tarefaRepository.buscarPorId(1L)).thenReturn(Optional.of(todoMock));
-        when(tarefaRepository.save(any(Todo.class))).thenReturn(todoMock);
+        when(tarefaRepository.findById(1L)).thenReturn(Optional.of(tarefaMock));
+        when(tarefaRepository.save(any(Tarefa.class))).thenReturn(tarefaMock);
 
         TarefaDTO updateDto = new TarefaDTO();
         updateDto.setTitulo("Título Atualizado");
@@ -138,31 +138,31 @@ class TarefaServiceTest {
         updateDto.setConcluida(true);
 
         // When
-        Todo resultado = tarefaService.atualizar(1L, updateDto);
+        Tarefa resultado = tarefaService.atualizar(1L, updateDto);
 
         // Then
         assertNotNull(resultado);
-        verify(tarefaRepository, times(1)).save(any(Todo.class));
+        verify(tarefaRepository, times(1)).save(any(Tarefa.class));
     }
 
     @Test
-    void deveDeletarTodoComSucesso() {
+    void deveDeletarTarefaComSucesso() {
         // Given
-        when(tarefaRepository.buscarPorId(1L)).thenReturn(Optional.of(todoMock));
-        doNothing().when(tarefaRepository).delete(any(Todo.class));
+        when(tarefaRepository.findById(1L)).thenReturn(Optional.of(tarefaMock));
+        doNothing().when(tarefaRepository).delete(any(Tarefa.class));
 
         // When
         tarefaService.deletar(1L);
 
         // Then
-        verify(tarefaRepository, times(1)).delete(any(Todo.class));
+        verify(tarefaRepository, times(1)).delete(any(Tarefa.class));
     }
 
     @Test
-    void deveListarTodosPorStatus() {
+    void deveListarTarefasPorStatus() {
         // Given
-        List<Tarefa> todosMock = Arrays.asList(todoMock);
-        when(tarefaRepository.findByConcluida(false)).thenReturn(todosMock);
+        List<Tarefa> tarefasMock = Arrays.asList(tarefaMock);
+        when(tarefaRepository.findByConcluida(false)).thenReturn(tarefasMock);
 
         // When
         List<Tarefa> resultado = tarefaService.listarPorStatus(false);
@@ -171,5 +171,21 @@ class TarefaServiceTest {
         assertNotNull(resultado);
         assertEquals(1, resultado.size());
         verify(tarefaRepository, times(1)).findByConcluida(false);
+    }
+
+    @Test
+    void deveBuscarTarefasPorTitulo() {
+        // Given
+        List<Tarefa> tarefasMock = Arrays.asList(tarefaMock);
+        when(tarefaRepository.findByTituloContainingIgnoreCase("Teste")).thenReturn(tarefasMock);
+
+        // When
+        List<Tarefa> resultado = tarefaService.buscarPorTitulo("Teste");
+
+        // Then
+        assertNotNull(resultado);
+        assertEquals(1, resultado.size());
+        assertEquals("Teste", resultado.get(0).getTitulo());
+        verify(tarefaRepository, times(1)).findByTituloContainingIgnoreCase("Teste");
     }
 }
