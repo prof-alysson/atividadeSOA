@@ -1,4 +1,4 @@
-package br.edu.unitins.todolist.dto;
+package br.unitins.todolist.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -7,19 +7,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO (Data Transfer Object) para transferência de dados de Todo
- *
- * Boas práticas:
- * - Separação entre camada de apresentação e modelo de domínio
- * - Validações de entrada
- * - Imutabilidade de dados entre camadas
+ * Objeto usado para enviar e receber dados de tarefas pela API
+ * (não inclui campos como id e datas, que são gerados automaticamente)
  *
  * @author Prof. Alysson - UNITINS TOGraduado
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class TodoDTO {
+public class TarefaDTO {
 
     @NotBlank(message = "O título é obrigatório")
     @Size(min = 3, max = 100, message = "O título deve ter entre 3 e 100 caracteres")

@@ -1,11 +1,7 @@
-package br.edu.unitins.todolist.exception;
+package br.unitins.todolist.exception;
 
 /**
- * Exceção customizada para recursos não encontrados
- *
- * Boas práticas:
- * - Exceções específicas do domínio
- * - Tratamento de erros centralizado
+ * Exceção lançada quando uma tarefa não é encontrada no banco de dados
  *
  * @author Prof. Alysson - UNITINS TOGraduado
  */

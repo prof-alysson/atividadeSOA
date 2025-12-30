@@ -1,4 +1,4 @@
-package br.edu.unitins.todolist.exception;
+package br.unitins.todolist.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -13,13 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Tratamento global de exceções
- *
- * Boas práticas:
- * - Centralização do tratamento de erros
- * - Respostas padronizadas
- * - Logging de erros
- * - Separação de tipos de erro com status HTTP apropriados
+ * Intercepta erros da aplicação e retorna respostas padronizadas
+ * Centraliza o tratamento de exceções em um só lugar
  *
  * @author Prof. Alysson - UNITINS TOGraduado
  */
@@ -27,9 +22,7 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    /**
-     * Trata exceção de recurso não encontrado
-     */
+    // Trata erro quando uma tarefa não é encontrada (retorna 404)
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
         log.error("Recurso não encontrado: {}", ex.getMessage());
@@ -43,12 +36,10 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
-    /**
-     * Trata erros de validação
-     */
+    // Trata erros de validação (exemplo: título muito curto) - retorna 400
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
-        log.error("Erro de validação: {}", ex.getMessage());
+        log.error("Erro de validação");
 
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach(error -> {
@@ -66,12 +57,10 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
-    /**
-     * Trata exceções genéricas
-     */
+    // Trata qualquer outro erro não esperado - retorna 500
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
-        log.error("Erro interno do servidor: {}", ex.getMessage(), ex);
+        log.error("Erro interno: {}", ex.getMessage(), ex);
 
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());

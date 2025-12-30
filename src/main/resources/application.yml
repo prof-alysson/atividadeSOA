@@ -4,9 +4,9 @@ spring:
 
   # Configuração do DataSource MySQL
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:tododb}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
-    username: ${DB_USER:todouser}
-    password: ${DB_PASSWORD:todopass}
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:tarefasdb}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${DB_USER:tarefauser}
+    password: ${DB_PASSWORD:tarefapass}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   # Configuração JPA/Hibernate
@@ -39,6 +39,6 @@ management:
 # Logging
 logging:
   level:
-    br.edu.unitins: DEBUG
+    br.unitins: DEBUG
     org.springframework.web: INFO
     org.hibernate: INFO

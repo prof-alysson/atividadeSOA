@@ -157,13 +157,13 @@ body {
 }
 
 /* Lista de tarefas */
-.todo-list {
+.tarefa-list {
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
 
-.todo-item {
+.tarefa-item {
     background: var(--light-color);
     padding: 15px;
     border-radius: 8px;
@@ -183,47 +183,47 @@ body {
     }
 }
 
-.todo-item:hover {
+.tarefa-item:hover {
     transform: translateX(5px);
     box-shadow: var(--shadow);
 }
 
-.todo-item.completed {
+.tarefa-item.completed {
     border-left-color: var(--primary-color);
     opacity: 0.7;
 }
 
-.todo-header {
+.tarefa-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 10px;
 }
 
-.todo-title {
+.tarefa-title {
     font-size: 16px;
     font-weight: 600;
     color: var(--dark-color);
     flex: 1;
 }
 
-.todo-item.completed .todo-title {
+.tarefa-item.completed .tarefa-title {
     text-decoration: line-through;
     color: #999;
 }
 
-.todo-actions {
+.tarefa-actions {
     display: flex;
     gap: 5px;
 }
 
-.todo-description {
+.tarefa-description {
     color: #666;
     font-size: 14px;
     margin-bottom: 10px;
 }
 
-.todo-footer {
+.tarefa-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -232,30 +232,30 @@ body {
     border-top: 1px solid var(--border-color);
 }
 
-.todo-date {
+.tarefa-date {
     font-size: 12px;
     color: #999;
 }
 
-.todo-status {
+.tarefa-status {
     padding: 3px 8px;
     border-radius: 12px;
     font-size: 11px;
     font-weight: 600;
 }
 
-.todo-status.pending {
+.tarefa-status.pending {
     background: #fff3cd;
     color: #856404;
 }
 
-.todo-status.completed {
+.tarefa-status.completed {
     background: #d4edda;
     color: #155724;
 }
 
 /* Checkbox customizado */
-.todo-checkbox {
+.tarefa-checkbox {
     width: 20px;
     height: 20px;
     cursor: pointer;

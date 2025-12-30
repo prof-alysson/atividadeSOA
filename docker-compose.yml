@@ -1,74 +1,32 @@
-version: '3.8'
-
 services:
   # Banco de dados MySQL
   mysql:
-    image: mysql:9.5
-    container_name: todolist-mysql
-    restart: unless-stopped
+    image: mysql:8
+    container_name: lista-tarefas-mysql
     environment:
-      MYSQL_DATABASE: tododb
-      MYSQL_USER: todouser
-      MYSQL_PASSWORD: todopass
+      MYSQL_DATABASE: tarefasdb
+      MYSQL_USER: tarefauser
+      MYSQL_PASSWORD: tarefapass
       MYSQL_ROOT_PASSWORD: rootpass
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-    networks:
-      - todolist-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   # Aplicação Spring Boot
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: todolist-app
-    restart: unless-stopped
+    build: .
+    container_name: lista-tarefas-app
     ports:
       - "8080:8080"
     environment:
-      # Configurações do banco de dados
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_NAME: tododb
-      DB_USER: todouser
-      DB_PASSWORD: todopass
-      SERVER_PORT: 8080
+      DB_NAME: tarefasdb
+      DB_USER: tarefauser
+      DB_PASSWORD: tarefapass
     depends_on:
-      mysql:
-        condition: service_healthy
-    networks:
-      - todolist-network
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-
-  # Frontend (servidor HTTP simples)
-  frontend:
-    image: nginx:alpine
-    container_name: todolist-frontend
-    restart: unless-stopped
-    ports:
-      - "80:80"
-    volumes:
-      - ./src/main/resources/static:/usr/share/nginx/html:ro
-    depends_on:
-      - app
-    networks:
-      - todolist-network
-
-networks:
-  todolist-network:
-    driver: bridge
+      - mysql
 
 volumes:
   mysql_data:

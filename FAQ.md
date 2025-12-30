@@ -125,7 +125,7 @@ private String categoria;
 
 1. **cURL:**
    ```bash
-   curl http://localhost:8080/api/v1/todos
+   curl http://localhost:8080/api/v1/tarefas
    ```
 
 2. **Postman ou Insomnia:**
@@ -193,7 +193,7 @@ mvn test
 **R:** Verifique:
 
 1. **API está rodando?**
-   - Acesse: http://localhost:8080/api/v1/todos
+   - Acesse: http://localhost:8080/api/v1/tarefas
 
 2. **CORS está configurado?**
    - Verifique `@CrossOrigin` no controller

@@ -1,4 +1,4 @@
-package br.edu.unitins.todolist.model;
+package br.unitins.todolist.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -10,22 +10,16 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 /**
- * Entidade que representa uma tarefa (Todo)
- *
- * Boas práticas aplicadas:
- * - Uso de JPA/Hibernate para mapeamento objeto-relacional
- * - Validações com Bean Validation
- * - Lombok para reduzir boilerplate
- * - Timestamps automáticos
+ * Representa uma tarefa no banco de dados
  *
  * @author Prof. Alysson - UNITINS TOGraduado
  */
 @Entity
-@Table(name = "todos")
+@Table(name = "tarefas")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Todo {
+public class Tarefa {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,18 +43,14 @@ public class Todo {
     @Column(name = "atualizado_em")
     private LocalDateTime atualizadoEm;
 
-    /**
-     * Método executado antes de persistir a entidade
-     */
+    // Este método é chamado automaticamente quando uma tarefa é criada
     @PrePersist
     protected void onCreate() {
         criadoEm = LocalDateTime.now();
         atualizadoEm = LocalDateTime.now();
     }
 
-    /**
-     * Método executado antes de atualizar a entidade
-     */
+    // Este método é chamado automaticamente quando uma tarefa é atualizada
     @PreUpdate
     protected void onUpdate() {
         atualizadoEm = LocalDateTime.now();

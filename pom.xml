@@ -12,7 +12,7 @@
         <relativePath/>
     </parent>
 
-    <groupId>br.edu.unitins</groupId>
+    <groupId>br.unitins</groupId>
     <artifactId>todolist-microservice</artifactId>
     <version>1.0.0</version>
     <name>TodoList Microservice</name>

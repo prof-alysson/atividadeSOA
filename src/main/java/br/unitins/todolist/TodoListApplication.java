@@ -1,4 +1,4 @@
-package br.edu.unitins.todolist;
+package br.unitins.todolist;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

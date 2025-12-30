@@ -2,17 +2,11 @@
  * Aplicação Frontend Todo List
  * Projeto Didático - UNITINS TOGraduado
  * Prof. Alysson
- *
- * Boas práticas aplicadas:
- * - Separação de responsabilidades (API, UI, Utils)
- * - Async/Await para operações assíncronas
- * - Tratamento de erros
- * - Código modular e reutilizável
  */
 
-// Configuração da API
+// Endereço da API no servidor
 const API_CONFIG = {
-    baseURL: 'http://localhost:8080/api/v1/todos',
+    baseURL: 'http://localhost:8080/api/v1/tarefas',
     headers: {
         'Content-Type': 'application/json'
     }
@@ -20,50 +14,40 @@ const API_CONFIG = {
 
 // Estado da aplicação
 let currentFilter = 'all';
-let todos = [];
+let tarefas = [];
 
-/**
- * API Service - Comunicação com o backend
- */
-const TodoAPI = {
-    /**
-     * Lista todas as tarefas
-     */
+// Funções para comunicar com o servidor (API)
+const TarefaAPI = {
+    // Busca todas as tarefas
     async getAll() {
         const response = await fetch(API_CONFIG.baseURL);
         if (!response.ok) throw new Error('Erro ao buscar tarefas');
         return await response.json();
     },
 
-    /**
-     * Cria uma nova tarefa
-     */
-    async create(todoData) {
+    // Cria uma nova tarefa
+    async create(tarefaData) {
         const response = await fetch(API_CONFIG.baseURL, {
             method: 'POST',
             headers: API_CONFIG.headers,
-            body: JSON.stringify(todoData)
+            body: JSON.stringify(tarefaData)
         });
         if (!response.ok) throw new Error('Erro ao criar tarefa');
         return await response.json();
     },
 
-    /**
-     * Atualiza uma tarefa
-     */
-    async update(id, todoData) {
+    // Atualiza uma tarefa
+    async update(id, tarefaData) {
         const response = await fetch(`${API_CONFIG.baseURL}/${id}`, {
             method: 'PUT',
             headers: API_CONFIG.headers,
-            body: JSON.stringify(todoData)
+            body: JSON.stringify(tarefaData)
         });
         if (!response.ok) throw new Error('Erro ao atualizar tarefa');
         return await response.json();
     },
 
-    /**
-     * Alterna o status de conclusão
-     */
+    // Marca/desmarca como concluída
     async toggle(id) {
         const response = await fetch(`${API_CONFIG.baseURL}/${id}/toggle`, {
             method: 'PATCH',
@@ -73,9 +57,7 @@ const TodoAPI = {
         return await response.json();
     },
 
-    /**
-     * Deleta uma tarefa
-     */
+    // Deleta uma tarefa
     async delete(id) {
         const response = await fetch(`${API_CONFIG.baseURL}/${id}`, {
             method: 'DELETE'
@@ -83,9 +65,7 @@ const TodoAPI = {
         if (!response.ok) throw new Error('Erro ao deletar tarefa');
     },
 
-    /**
-     * Verifica a saúde da API
-     */
+    // Verifica se a API está funcionando
     async checkHealth() {
         try {
             const response = await fetch('http://localhost:8080/api/actuator/health');
@@ -96,61 +76,53 @@ const TodoAPI = {
     }
 };
 
-/**
- * UI Service - Manipulação da interface
- */
-const TodoUI = {
-    /**
-     * Renderiza a lista de tarefas
-     */
-    renderTodos(todosToRender) {
-        const todoList = document.getElementById('todoList');
+// Funções para atualizar a tela
+const TarefaUI = {
+    // Mostra as tarefas na tela
+    renderTarefas(tarefasToRender) {
+        const listaTarefas = document.getElementById('listaTarefas');
 
-        if (todosToRender.length === 0) {
-            todoList.innerHTML = '<p class="empty-state">Nenhuma tarefa encontrada</p>';
+        if (tarefasToRender.length === 0) {
+            listaTarefas.innerHTML = '<p class="empty-state">Nenhuma tarefa encontrada</p>';
             return;
         }
 
-        todoList.innerHTML = todosToRender.map(todo => `
-            <div class="todo-item ${todo.concluida ? 'completed' : ''}" data-id="${todo.id}">
-                <div class="todo-header">
+        listaTarefas.innerHTML = tarefasToRender.map(tarefa => `
+            <div class="tarefa-item ${tarefa.concluida ? 'completed' : ''}" data-id="${tarefa.id}">
+                <div class="tarefa-header">
                     <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
                         <input
                             type="checkbox"
-                            class="todo-checkbox"
-                            ${todo.concluida ? 'checked' : ''}
-                            onchange="handleToggleTodo(${todo.id})">
-                        <h3 class="todo-title">${this.escapeHtml(todo.titulo)}</h3>
+                            class="tarefa-checkbox"
+                            ${tarefa.concluida ? 'checked' : ''}
+                            onchange="handleAlternarTarefa(${tarefa.id})">
+                        <h3 class="tarefa-title">${this.escapeHtml(tarefa.titulo)}</h3>
                     </div>
-                    <div class="todo-actions">
-                        <button class="btn btn-danger" onclick="handleDeleteTodo(${todo.id})">
+                    <div class="tarefa-actions">
+                        <button class="btn btn-danger" onclick="handleDeletarTarefa(${tarefa.id})">
                             Excluir
                         </button>
                     </div>
                 </div>
-                ${todo.descricao ? `<p class="todo-description">${this.escapeHtml(todo.descricao)}</p>` : ''}
-                <div class="todo-footer">
-                    <span class="todo-date">Criado em: ${this.formatDate(todo.criadoEm)}</span>
-                    <span class="todo-status ${todo.concluida ? 'completed' : 'pending'}">
-                        ${todo.concluida ? 'Concluída' : 'Pendente'}
+                ${tarefa.descricao ? `<p class="tarefa-description">${this.escapeHtml(tarefa.descricao)}</p>` : ''}
+                <div class="tarefa-footer">
+                    <span class="tarefa-date">Criado em: ${this.formatDate(tarefa.criadoEm)}</span>
+                    <span class="tarefa-status ${tarefa.concluida ? 'completed' : 'pending'}">
+                        ${tarefa.concluida ? 'Concluída' : 'Pendente'}
                     </span>
                 </div>
             </div>
         `).join('');
     },
 
-    /**
-     * Escapa HTML para prevenir XSS
-     */
+    // Protege contra código malicioso no texto
     escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     },
 
-    /**
-     * Formata data para exibição
-     */
+    // Formata a data para o padrão brasileiro
     formatDate(dateString) {
         const date = new Date(dateString);
         return date.toLocaleDateString('pt-BR', {
@@ -162,9 +134,7 @@ const TodoUI = {
         });
     },
 
-    /**
-     * Atualiza status da API
-     */
+    // Atualiza o indicador de conexão com a API
     updateAPIStatus(isConnected) {
         const statusElement = document.getElementById('apiStatus');
         const indicator = statusElement.querySelector('.status-indicator');
@@ -179,122 +149,106 @@ const TodoUI = {
         }
     },
 
-    /**
-     * Mostra mensagem de erro
-     */
+    // Mostra mensagem de erro
     showError(message) {
         alert(`Erro: ${message}`);
     },
 
-    /**
-     * Mostra mensagem de sucesso
-     */
+    // Mostra mensagem de sucesso
     showSuccess(message) {
         console.log(`Sucesso: ${message}`);
     }
 };
 
-/**
- * Filtra as tarefas com base no filtro atual
- */
-function filterTodos() {
-    let filtered = todos;
+// Filtra tarefas (todas, pendentes ou concluídas)
+function filterTarefas() {
+    let filtered = tarefas;
 
     if (currentFilter === 'pending') {
-        filtered = todos.filter(todo => !todo.concluida);
+        filtered = tarefas.filter(tarefa => !tarefa.concluida);
     } else if (currentFilter === 'completed') {
-        filtered = todos.filter(todo => todo.concluida);
+        filtered = tarefas.filter(tarefa => tarefa.concluida);
     }
 
-    TodoUI.renderTodos(filtered);
+    TarefaUI.renderTarefas(filtered);
 }
 
-/**
- * Carrega todas as tarefas
- */
-async function loadTodos() {
+// Carrega as tarefas do servidor
+async function carregarTarefas() {
     try {
-        todos = await TodoAPI.getAll();
-        filterTodos();
-        TodoUI.updateAPIStatus(true);
+        tarefas = await TarefaAPI.getAll();
+        filterTarefas();
+        TarefaUI.updateAPIStatus(true);
     } catch (error) {
         console.error('Erro ao carregar tarefas:', error);
-        TodoUI.showError('Não foi possível carregar as tarefas');
-        TodoUI.updateAPIStatus(false);
+        TarefaUI.showError('Não foi possível carregar as tarefas');
+        TarefaUI.updateAPIStatus(false);
     }
 }
 
-/**
- * Handler para criação de tarefa
- */
-async function handleCreateTodo(event) {
+// Função chamada quando o formulário é enviado
+async function handleCriarTarefa(event) {
     event.preventDefault();
 
     const titulo = document.getElementById('titulo').value.trim();
     const descricao = document.getElementById('descricao').value.trim();
 
     if (!titulo) {
-        TodoUI.showError('O título é obrigatório');
+        TarefaUI.showError('O título é obrigatório');
         return;
     }
 
     try {
-        const todoData = {
+        const tarefaData = {
             titulo,
             descricao: descricao || null,
             concluida: false
         };
 
-        await TodoAPI.create(todoData);
-        TodoUI.showSuccess('Tarefa criada com sucesso');
+        await TarefaAPI.create(tarefaData);
+        TarefaUI.showSuccess('Tarefa criada com sucesso');
 
         // Limpa o formulário
-        document.getElementById('todoForm').reset();
+        document.getElementById('tarefaForm').reset();
 
         // Recarrega as tarefas
-        await loadTodos();
+        await carregarTarefas();
     } catch (error) {
         console.error('Erro ao criar tarefa:', error);
-        TodoUI.showError('Não foi possível criar a tarefa');
+        TarefaUI.showError('Não foi possível criar a tarefa');
     }
 }
 
-/**
- * Handler para alternar status de conclusão
- */
-async function handleToggleTodo(id) {
+// Função chamada quando o checkbox é clicado
+async function handleAlternarTarefa(id) {
     try {
-        await TodoAPI.toggle(id);
-        await loadTodos();
-        TodoUI.showSuccess('Status atualizado');
+        await TarefaAPI.toggle(id);
+        await carregarTarefas();
+        TarefaUI.showSuccess('Status atualizado');
     } catch (error) {
         console.error('Erro ao alternar status:', error);
-        TodoUI.showError('Não foi possível atualizar o status');
-        await loadTodos(); // Reverte a mudança visual
+        TarefaUI.showError('Não foi possível atualizar o status');
+        await carregarTarefas(); // Reverte a mudança visual
     }
 }
 
-/**
- * Handler para deletar tarefa
- */
-async function handleDeleteTodo(id) {
+// Função chamada quando o botão excluir é clicado
+async function handleDeletarTarefa(id) {
     if (!confirm('Tem certeza que deseja excluir esta tarefa?')) {
         return;
     }
 
     try {
-        await TodoAPI.delete(id);
-        TodoUI.showSuccess('Tarefa excluída com sucesso');
-        await loadTodos();
+        await TarefaAPI.delete(id);
+        TarefaUI.showSuccess('Tarefa excluída com sucesso');
+        await carregarTarefas();
     } catch (error) {
         console.error('Erro ao deletar tarefa:', error);
-        TodoUI.showError('Não foi possível excluir a tarefa');
+        TarefaUI.showError('Não foi possível excluir a tarefa');
     }
 }
 
-/**
- * Handler para mudança de filtro
- */
+// Função chamada quando um botão de filtro é clicado
 function handleFilterChange(filter) {
     currentFilter = filter;
 
@@ -304,28 +258,24 @@ function handleFilterChange(filter) {
     });
     document.querySelector(`[data-filter="${filter}"]`).classList.add('active');
 
-    filterTodos();
+    filterTarefas();
 }
 
-/**
- * Verifica a saúde da API periodicamente
- */
+// Verifica se a API está funcionando a cada 30 segundos
 function startHealthCheck() {
     setInterval(async () => {
-        const isHealthy = await TodoAPI.checkHealth();
-        TodoUI.updateAPIStatus(isHealthy);
+        const isHealthy = await TarefaAPI.checkHealth();
+        TarefaUI.updateAPIStatus(isHealthy);
     }, 30000); // Verifica a cada 30 segundos
 }
 
-/**
- * Inicialização da aplicação
- */
+// Inicia a aplicação quando a página carregar
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Todo List App - UNITINS TOGraduado');
     console.log('Inicializando aplicação...');
 
     // Event Listeners
-    document.getElementById('todoForm').addEventListener('submit', handleCreateTodo);
+    document.getElementById('tarefaForm').addEventListener('submit', handleCriarTarefa);
 
     document.querySelectorAll('.btn-filter').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -334,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Carrega tarefas iniciais
-    loadTodos();
+    carregarTarefas();
 
     // Inicia verificação de saúde
     startHealthCheck();
