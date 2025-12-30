@@ -6,7 +6,7 @@
 
 // Endereço da API no servidor
 const API_CONFIG = {
-    baseURL: 'http://localhost:8080/api/v1/tarefas',
+    baseURL: 'http://localhost:8080/v1/tarefas',
     headers: {
         'Content-Type': 'application/json'
     }
@@ -68,7 +68,7 @@ const TarefaAPI = {
     // Verifica se a API está funcionando
     async checkHealth() {
         try {
-            const response = await fetch('http://localhost:8080/api/actuator/health');
+            const response = await fetch('http://localhost:8080/actuator/health');
             return response.ok;
         } catch (error) {
             return false;

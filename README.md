@@ -50,6 +50,7 @@ Um microserviço é um programa pequeno e independente que faz uma coisa especí
 ### Você precisa ter instalado:
 
 1. **Docker Desktop** - [Baixe aqui](https://docs.docker.com/get-docker/)
+   - OU **Podman** - [Baixe aqui](https://podman.io/getting-started/installation)
 2. As portas 3306 e 8080 livres no seu computador
 
 ### Passo a passo:
@@ -58,7 +59,11 @@ Um microserviço é um programa pequeno e independente que faz uma coisa especí
 
 2. Execute o comando:
 ```bash
+# Com Docker
 docker-compose up --build
+
+# Com Podman
+podman-compose up --build
 ```
 
 3. Aguarde alguns minutos (na primeira vez demora mais)
@@ -71,7 +76,11 @@ docker-compose up --build
 
 Pressione `Ctrl + C` no terminal e depois:
 ```bash
+# Com Docker
 docker-compose down
+
+# Com Podman
+podman-compose down
 ```
 
 ---
@@ -89,25 +98,25 @@ Abra no navegador: http://localhost:8080
 
 ### API REST (para programadores)
 
-A API funciona em: http://localhost:8080/api/v1/tarefas
+A API funciona em: http://localhost:8080/v1/tarefas
 
 **Exemplos de comandos:**
 
 Listar todas as tarefas:
 ```bash
-curl http://localhost:8080/api/v1/tarefas
+curl http://localhost:8080/v1/tarefas
 ```
 
 Criar uma tarefa:
 ```bash
-curl -X POST http://localhost:8080/api/v1/tarefas \
+curl -X POST http://localhost:8080/v1/tarefas \
   -H "Content-Type: application/json" \
   -d '{"titulo":"Estudar Java","descricao":"Revisar Spring Boot"}'
 ```
 
 Deletar uma tarefa:
 ```bash
-curl -X DELETE http://localhost:8080/api/v1/tarefas/1
+curl -X DELETE http://localhost:8080/v1/tarefas/1
 ```
 
 ---
@@ -263,6 +272,10 @@ A API segue o padrão REST. Isso significa que usamos verbos HTTP para indicar o
 
 ## Problemas comuns e soluções
 
+### "Connection Refused" ao acessar o frontend
+
+Acesse a URL correta: http://localhost:8080
+
 ### "Porta já está em uso"
 
 Outro programa está usando a porta. Soluções:
@@ -274,13 +287,22 @@ Outro programa está usando a porta. Soluções:
 
 Veja os erros com:
 ```bash
+# Docker
 docker-compose logs app
+
+# Podman
+podman-compose logs app
 ```
 
 Reinicie tudo:
 ```bash
+# Docker
 docker-compose down
 docker-compose up --build
+
+# Podman
+podman-compose down
+podman-compose up --build
 ```
 
 ### "Não conecta no banco de dados"
@@ -289,7 +311,11 @@ Aguarde mais alguns segundos. O MySQL demora um pouco para ficar pronto.
 
 Verifique se está rodando:
 ```bash
+# Docker
 docker-compose ps
+
+# Podman
+podman-compose ps
 ```
 
 ---
@@ -318,14 +344,18 @@ docker-compose ps
 Se quiser ver os dados direto no MySQL:
 
 ```bash
-docker exec -it todolist-mysql mysql -u tarefauser -p
+# Docker
+docker exec -it lista-tarefas-mysql mysql -u tarefauser -p
+
+# Podman
+podman exec -it lista-tarefas-mysql mysql -u tarefauser -p
 ```
 
 Senha: `tarefapass`
 
 Depois pode usar comandos SQL:
 ```sql
-USE tododb;
+USE tarefasdb;
 SHOW TABLES;
 SELECT * FROM todos;
 ```
@@ -340,9 +370,9 @@ SELECT * FROM todos;
 
 **Microserviço** - Um programa pequeno que faz uma coisa específica.
 
-**Docker** - Ferramenta que empacota tudo que o programa precisa para rodar.
+**Docker/Podman** - Ferramentas que empacotam tudo que o programa precisa para rodar em containers.
 
-**Container** - Como se fosse um computador virtual pequeno que roda dentro do seu computador.
+**Container** - Como se fosse um computador virtual pequeno e isolado que roda dentro do seu computador.
 
 **JSON** - Formato de texto para enviar dados. Exemplo: `{"nome":"João","idade":20}`
 

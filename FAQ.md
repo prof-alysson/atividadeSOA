@@ -18,13 +18,23 @@ Respostas para dúvidas comuns dos alunos sobre o projeto Todo List.
 
 ### P: Preciso instalar Java e Maven para rodar o projeto?
 
-**R:** Não! Se você usar Docker, não precisa instalar Java nem Maven. Tudo roda dentro dos containers. Basta ter Docker e Docker Compose instalados.
+**R:** Não! Se você usar Docker ou Podman, não precisa instalar Java nem Maven. Tudo roda dentro dos containers. Basta ter uma das ferramentas de containerização instaladas.
 
-### P: Qual versão do Docker devo usar?
+### P: Qual versão do Docker ou Podman devo usar?
 
-**R:** Qualquer versão recente do Docker (20.x ou superior) e Docker Compose (2.x ou superior) funcionará bem.
+**R:**
+- **Docker:** Versão 20.x ou superior com Docker Compose 2.x ou superior
+- **Podman:** Versão 4.x ou superior com podman-compose instalado
 
-### P: Posso rodar o projeto sem Docker?
+### P: Qual a diferença entre Docker e Podman?
+
+**R:** Ambos criam e executam containers:
+- **Docker:** Mais popular, usa daemon (processo em background)
+- **Podman:** Alternativa sem daemon, mais seguro (rootless), compatível com comandos Docker
+
+Para este projeto, use o que você preferir!
+
+### P: Posso rodar o projeto sem Docker/Podman?
 
 **R:** Sim, mas precisará:
 - Java 17 instalado
@@ -41,6 +51,8 @@ ports:
   - "8080:8080"  # Altere o primeiro número (porta do host)
 ```
 
+**Nota:** O arquivo funciona tanto para `docker-compose` quanto para `podman-compose`.
+
 ---
 
 ## Execução do Projeto
@@ -49,18 +61,22 @@ ports:
 
 **R:** Você pode verificar de três formas:
 
-1. **Logs do Docker:**
+1. **Logs dos containers:**
    ```bash
+   # Docker
    docker-compose logs -f app
+
+   # Podman
+   podman-compose logs -f app
    ```
    Procure por: "Aplicação iniciada com sucesso!"
 
 2. **Health Check:**
-   Acesse: http://localhost:8080/api/actuator/health
+   Acesse: http://localhost:8080/actuator/health
    Deve retornar: `{"status":"UP"}`
 
 3. **Frontend:**
-   Acesse: http://localhost
+   Acesse: http://localhost:8080
    O indicador no canto inferior direito deve mostrar "API Conectada"
 
 ### P: A aplicação demora muito para iniciar. É normal?
@@ -74,37 +90,43 @@ ports:
 
 **R:** Use:
 ```bash
-# Reiniciar apenas o backend
-docker-compose restart app
+# Docker
+docker-compose restart app      # Reiniciar apenas o backend
+docker-compose restart mysql    # Reiniciar apenas o MySQL
 
-# Reiniciar apenas o MySQL
-docker-compose restart mysql
-
-# Reiniciar apenas o frontend
-docker-compose restart frontend
+# Podman
+podman-compose restart app      # Reiniciar apenas o backend
+podman-compose restart mysql    # Reiniciar apenas o MySQL
 ```
 
 ### P: Como ver os logs em tempo real?
 
 **R:**
 ```bash
-# Ver todos os logs
-docker-compose logs -f
+# Docker
+docker-compose logs -f          # Ver todos os logs
+docker-compose logs -f app      # Ver logs do backend
+docker-compose logs -f mysql    # Ver logs do MySQL
 
-# Ver logs de um serviço específico
-docker-compose logs -f app
-docker-compose logs -f mysql
+# Podman
+podman-compose logs -f          # Ver todos os logs
+podman-compose logs -f app      # Ver logs do backend
+podman-compose logs -f mysql    # Ver logs do MySQL
 ```
 
 ---
 
 ## Desenvolvimento
 
-### P: Preciso rebuildar o Docker toda vez que altero o código?
+### P: Preciso rebuildar os containers toda vez que altero o código?
 
 **R:** Para alterações no **backend Java**, sim:
 ```bash
+# Docker
 docker-compose up --build
+
+# Podman
+podman-compose up --build
 ```
 
 Para alterações no **frontend** (HTML/CSS/JS), não precisa rebuildar, apenas recarregue a página do navegador.
@@ -125,7 +147,7 @@ private String categoria;
 
 1. **cURL:**
    ```bash
-   curl http://localhost:8080/api/v1/tarefas
+   curl http://localhost:8080/v1/tarefas
    ```
 
 2. **Postman ou Insomnia:**
@@ -136,9 +158,13 @@ private String categoria;
 
 ### P: Como executar os testes unitários?
 
-**R:** Se estiver usando Docker:
+**R:** Se estiver usando containers:
 ```bash
+# Docker
 docker-compose exec app mvn test
+
+# Podman
+podman-compose exec app mvn test
 ```
 
 Se tiver Maven instalado localmente:
@@ -153,9 +179,52 @@ mvn test
 2. Ajustar a URL de conexão em `application.yml`
 3. Mudar a imagem no `docker-compose.yml`
 
+### P: Como acessar o MySQL diretamente?
+
+**R:** Para executar comandos SQL diretamente no banco:
+
+```bash
+# Docker
+docker exec -it lista-tarefas-mysql mysql -u tarefauser -p
+
+# Podman
+podman exec -it lista-tarefas-mysql mysql -u tarefauser -p
+```
+
+Senha: `tarefapass`
+
+Depois pode usar comandos SQL:
+```sql
+USE tarefasdb;
+SHOW TABLES;
+SELECT * FROM todos;
+```
+
 ---
 
 ## Erros Comuns
+
+### P: Erro "Connection Refused" ao acessar o frontend
+
+**R:** Este erro acontece quando a aplicação não está acessível na URL esperada. Verifique:
+
+1. **Os containers estão rodando?**
+   ```bash
+   # Docker
+   docker-compose ps
+
+   # Podman
+   podman-compose ps
+   ```
+
+2. **Acesse a URL correta:**
+   - Frontend: http://localhost:8080
+   - API: http://localhost:8080/v1/tarefas
+   - Health: http://localhost:8080/actuator/health
+
+3. **Verifique se o `context-path` está configurado corretamente:**
+   - No `application.yml`, NÃO deve ter `context-path: /api`
+   - As URLs no `app.js` devem apontar para `http://localhost:8080/v1/tarefas`
 
 ### P: Erro "port is already allocated"
 
@@ -178,14 +247,25 @@ mvn test
 
 1. **MySQL ainda não iniciou completamente:**
    - Aguarde mais 30 segundos
-   - Verifique: `docker-compose logs mysql`
+   - Verifique os logs:
+     ```bash
+     # Docker
+     docker-compose logs mysql
+
+     # Podman
+     podman-compose logs mysql
+     ```
 
 2. **Credenciais incorretas:**
-   - Verifique `DB_USER` e `DB_PASSWORD` no `application.yml`
+   - Verifique `DB_USER` e `DB_PASSWORD` no `docker-compose.yml`
 
 3. **Container do MySQL não está rodando:**
    ```bash
+   # Docker
    docker-compose ps
+
+   # Podman
+   podman-compose ps
    ```
 
 ### P: Frontend carrega mas não mostra tarefas
@@ -193,7 +273,7 @@ mvn test
 **R:** Verifique:
 
 1. **API está rodando?**
-   - Acesse: http://localhost:8080/api/v1/tarefas
+   - Acesse: http://localhost:8080/v1/tarefas
 
 2. **CORS está configurado?**
    - Verifique `@CrossOrigin` no controller
@@ -206,9 +286,13 @@ mvn test
 **R:** O build do Maven falhou. Tente:
 
 ```bash
-# Limpe e rebuilde
+# Docker
 docker-compose down
 docker-compose up --build --force-recreate
+
+# Podman
+podman-compose down
+podman-compose up --build --force-recreate
 ```
 
 ### P: Mudei o código mas não vejo as alterações
@@ -216,7 +300,11 @@ docker-compose up --build --force-recreate
 **R:**
 1. **Backend:** Precisa rebuildar
    ```bash
+   # Docker
    docker-compose up --build
+
+   # Podman
+   podman-compose up --build
    ```
 
 2. **Frontend:** Limpe o cache do navegador (Ctrl+Shift+R ou Cmd+Shift+R)
@@ -233,13 +321,19 @@ docker-compose up --build --force-recreate
 - Comunica-se via APIs
 - Pode ser escalado individualmente
 
-### P: Por que usar Docker?
+### P: Por que usar Docker ou Podman?
 
-**R:** Docker garante que a aplicação rode da mesma forma em qualquer ambiente:
+**R:** Ferramentas de containerização garantem que a aplicação rode da mesma forma em qualquer ambiente:
 - "Funciona na minha máquina" deixa de ser problema
-- Facilita deploy
-- Isola dependências
+- Facilita deploy e distribuição
+- Isola dependências do sistema
 - Simula ambiente de produção
+- Segurança e portabilidade
+
+**Podman** oferece vantagens adicionais:
+- Não requer daemon rodando em background
+- Execução rootless (sem privilégios de administrador)
+- Compatível com comandos Docker
 
 ### P: O que é REST?
 
